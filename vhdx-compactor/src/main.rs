@@ -11,6 +11,8 @@ mod pipeline;
 mod platform;
 mod ui;
 
+#[cfg(windows)]
+mod cli;
 #[cfg(not(windows))]
 mod stub;
 #[cfg(windows)]
@@ -20,6 +22,16 @@ use eframe::egui;
 
 fn main() -> eframe::Result {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+
+    // With arguments, run headless (`list` / `compact <path>`) instead of the
+    // GUI. This is the scriptable entry point and never returns.
+    #[cfg(windows)]
+    {
+        let args: Vec<String> = std::env::args().skip(1).collect();
+        if !args.is_empty() {
+            cli::run(&args);
+        }
+    }
 
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()

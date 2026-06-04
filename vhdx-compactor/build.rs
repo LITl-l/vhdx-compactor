@@ -7,7 +7,11 @@
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    if std::env::var_os("CARGO_CFG_WINDOWS").is_some() {
+    // Embed the admin manifest only in release Windows builds. Debug builds skip
+    // it so the binary can be run non-elevated during development/testing (no UAC
+    // prompt), and so the headless CLI mode is scriptable.
+    let is_release = std::env::var("PROFILE").as_deref() == Ok("release");
+    if std::env::var_os("CARGO_CFG_WINDOWS").is_some() && is_release {
         use embed_manifest::manifest::ExecutionLevel;
         use embed_manifest::{embed_manifest, new_manifest};
         embed_manifest(
