@@ -1,0 +1,26 @@
+[package]
+name = "vhdx-compactor"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+vhdx-core.workspace = true
+anyhow.workspace = true
+log.workspace = true
+env_logger.workspace = true
+eframe.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Foundation",
+    "Win32_Storage_Vhd",
+    "Win32_System_IO",
+] }
+windows-registry = "0.6"
+
+# Build-dependencies are resolved against the HOST triple, so this must NOT be
+# target-gated — when cross-compiling from Linux the build script still needs it.
+# The script itself no-ops unless the *target* is Windows (CARGO_CFG_WINDOWS).
+[build-dependencies]
+embed-manifest = "1"
